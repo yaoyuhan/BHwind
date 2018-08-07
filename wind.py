@@ -16,6 +16,7 @@ tempdir = os.getcwd()+'/'
 sys.path.append(tempdir)
 from slim_ss import find_x_trans_
 import numpy as np
+from scipy import interpolate  
 
 
 # constants
@@ -200,7 +201,7 @@ def find_TOUTSIDE(info1, info2, F_mid, R_mid, H_mid, const_mid, beta,
     Theta_0 = np.ones(len(F_mid))*PI/2  
     Theta_1 = np.zeros(len(F_mid))    
     Theta_2 = np.ones(len(F_mid))*PI/2  
-    ix = R_mid > 1.01*Rsc
+    ix = R_mid > 1.05*Rsc
     Theta_0[ix] = PI/2 - np.arcsin(Hsc / Rsc)   
     Theta_2[ix] = PI/2 - np.arctan(H_mid[ix] / R_mid[ix])
     Theta_1[ix] = Theta_2[ix] - np.arccos(Rsc / np.sqrt(R_mid[ix]**2 + H_mid[ix]**2))
@@ -218,7 +219,7 @@ def find_TOUTSIDE(info1, info2, F_mid, R_mid, H_mid, const_mid, beta,
                                ids_float_[-2]*0.6+ids_float_[-1]*0.4,
                                ids_float_[-2]*0.3+ids_float_[-1]*0.7])
         ids_float = ids_float[np.argsort(ids_float)]
-        ids_int = np.array(ids_float,dtype=int)
+        ids_int = np.array(ids_float+0.001,dtype=int)
     for i in range(len(F_mid)):
         if (quick==True and i in ids_int) or (quick==False and ix[i]==1):
             Rnow = R_mid[i]
@@ -242,15 +243,21 @@ def find_TOUTSIDE(info1, info2, F_mid, R_mid, H_mid, const_mid, beta,
                     D2 = QP*QP.T
                     F_mid[i] += Ledd * np.sin(thetanow) * d_theta * \
                                 d_phi / D2 * cosPHI    
-        if quick==True:
-            print (i)
-        elif i%50==0:
-            print (i)
+            if quick==True:
+                print (i)
+            elif i%50==0:
+                print (i)
     if quick==False:             
         F_mid[ix] *= (1-beta) / (4*PI)**2 *2
         return F_mid
     else:
-        F_mid[ids_int] *= (1-beta) / (4*PI)**2 *2
+        F_mid[ids_int] *= (1-beta) / (4*PI)**2 *2    
+        # plt.plot(R_mid, F_mid)
+        print ('@Yao: go interpolate...')  
         
-        
+        x = np.hstack([R_mid[id_start-1], R_mid[ids_int]])
+        y = np.hstack([F_mid[id_start-1], F_mid[ids_int]])
+        # plt.plot(x, y, 'o')
+        f=interpolate.interp1d(np.log10(x),np.log10(y),kind='linear')  
+        F_mid[ix] =10 ** f(np.log10(R_mid[ix]))
         return F_mid

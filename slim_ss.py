@@ -96,10 +96,11 @@ def standard_structure(alpha = 0.03, m = 10, mdot = 100, Rout = None):
     if Rout == None:
         Rout = Risco * 5e+5
     
+    xout = Rout/Risco
     ###########################################################################
     # 1. slim innermost disk: kes >> kff/bf, Pr >> Pg, Qadv >~ Qrad
     ###########################################################################
-    x1 = np.logspace(1, np.log10(x_trans), endpoint=False)
+    x1 = np.logspace(0.0001, np.log10(x_trans), num=100, endpoint=False)
     f1 = 1 - pow(x1, -0.5)
     R1 = x1 * Risco
     ff=1
@@ -120,6 +121,7 @@ def standard_structure(alpha = 0.03, m = 10, mdot = 100, Rout = None):
     k_Tc1 = pow(3*C**5/(4*STEFAN_BOLTZMANN*epsilon*kes*G*MSOL), 0.25) * pow(6, -5/8)
     Tc1 = k_Tc1 * pow(mdot/alpha/m, 0.25) * pow(f1/ff, 1/8) * pow(x1, -5/8)
     
+    # plt.loglog(R1, H1)
     '''
     # Vr
     k_Vr1 = pow(6, -0.5) * C 
@@ -129,7 +131,7 @@ def standard_structure(alpha = 0.03, m = 10, mdot = 100, Rout = None):
     ###########################################################################
     # 2. standard inner disk: kes >> kff/bf, Pr >> Pg
     ###########################################################################
-    x2 = np.logspace(np.log10(x_trans), np.log10(x_MI), endpoint=False)
+    x2 = np.logspace(np.log10(x_trans), np.log10(x_MI), num =200, endpoint=False)
     f2 = 1 - pow(x2, -0.5)
     R2 = x2 * Risco
     
@@ -149,10 +151,12 @@ def standard_structure(alpha = 0.03, m = 10, mdot = 100, Rout = None):
     k_Tc2 = pow(C**5 / (12 * np.sqrt(6) * G * MSOL * kes * STEFAN_BOLTZMANN), 1/4)
     Tc2 = k_Tc2 * pow(m*alpha, -0.25) * pow(x2, -3/8)
     
+    # plt.loglog(R2, H2)
+    
     ###########################################################################
     # 3. standard middle disk: kes >> kff/bf, Pr << Pg
     ###########################################################################
-    x3 = np.logspace(np.log10(x_MI), np.log10(x_OM), endpoint=False)
+    x3 = np.logspace(np.log10(x_MI), np.log10(x_OM), num=200, endpoint=False)
     f3 = 1 - pow(x3, -0.5)
     R3 = x3 * Risco
     
@@ -179,10 +183,12 @@ def standard_structure(alpha = 0.03, m = 10, mdot = 100, Rout = None):
             pow(6, -0.9)
     Tc3 = k_Tc3 * pow(m*alpha, -0.2) * pow(mdot*f3, 0.4) * pow(x3, -0.9)   
     
+    # plt.loglog(R3, H3)
+    
     ###########################################################################
     # 4. standard outer disk: kes << kff/bf, Pr << Pg
     ###########################################################################
-    x4 = np.logspace(np.log10(x_OM), np.log10(Rout), num=1000, endpoint=True)
+    x4 = np.logspace(np.log10(x_OM), np.log10(xout), num=700, endpoint=True)
     f4 = 1 - pow(x4, -0.5)
     R4 = x4 * Risco
     
@@ -208,6 +214,8 @@ def standard_structure(alpha = 0.03, m = 10, mdot = 100, Rout = None):
             pow(mu*MPROT/BOLTZMANN, 0.25) * pow(8*STEFAN_BOLTZMANN/9/K0, -0.1)
     Tc4 = k_Tc4 * pow(m*alpha, -0.2) * pow(mdot*f4, 0.3) * pow(x4, -3/4)
     
+    # plt.loglog(R4, H4)
+    
     R = np.hstack([R1, R2, R3, R4])
     rho = np.hstack([rho1, rho2, rho3, rho4])
     H = np.hstack([H1, H2, H3, H4])
@@ -220,6 +228,11 @@ def standard_structure(alpha = 0.03, m = 10, mdot = 100, Rout = None):
                         np.ones(R3.shape)*(1/20.),
                         np.ones(R4.shape)*(1/8)])
     
+    # plt.loglog(R, P) 
+    # plt.loglog(R, Tc)     
+    # plt.plot(R, H) 
+    # plt.plot(R, rho) 
+    
     info = {'R':        R,
             'rho':      rho,
             'H':        H,
@@ -230,13 +243,3 @@ def standard_structure(alpha = 0.03, m = 10, mdot = 100, Rout = None):
             'R_om':     R4[0],
             'const1':   const1}
     return info
-
-    '''
-    plt.loglog(R, rho)    
-    plt.xlim(5e+7, 1e+13)
-    plt.ylim(5e+7, 1e+13)
-    
-    plt.loglog(R, P) 
-    plt.loglog(R, Tc)     
-    plt.plot(R, H) 
-    '''
