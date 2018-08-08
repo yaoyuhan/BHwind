@@ -135,7 +135,7 @@ def wind_structure(alpha = 0.03, m = 10, mdot = 100,
                     pow(Ri, 27/11) * pow(zeta, -17/11)
         
         T_star = Ti * zeta**(-1/4) * (R_star/Ri)**(-3/4)        
-        tau_es_star = kes * rhoi * pow(zeta, -3) / R_star * Ri**2
+        tau_es_star = kes * rhoi * pow(zeta, -1) * pow(R_star, -1) * Ri**2
         subCase = 'super'
     
     info = {'alpha':        alpha,
