@@ -1,0 +1,6 @@
+clear all
+
+syms x y real
+n = 1:8;
+p = x.^n - y^n;
+f = [p; factor(p)]';
